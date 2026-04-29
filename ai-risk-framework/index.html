@@ -3,952 +3,710 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AI Evaluation Case Study — Financial Services & Risk | Ankit Singh</title>
+<title>AI Risk Assessment Framework — Claims Chatbot | Ankit Singh</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
   :root {
-    --bg: #ffffff;
-    --bg2: #f7f7f5;
-    --bg3: #efefec;
-    --border: #e3e3df;
-    --text: #1a1a1a;
-    --text2: #6b6b6b;
-    --text3: #9b9b9b;
-    --navy: #1a3a5c;
-    --teal: #0d6e8a;
-    --accent: #0d6e8a;
-    --red: #c0392b;
-    --orange: #d35400;
-    --yellow: #b7950b;
-    --green: #1e8449;
-    --purple: #6c3483;
-    --tag-bg: #eaf3f7;
-    --tag-text: #0d6e8a;
-    --halluc-bg: #fdf2f2;
-    --halluc-border: #e8a5a5;
-    --correct-bg: #f0faf0;
-    --correct-border: #a5d6a7;
-    --warn-bg: #fffbf0;
-    --warn-border: #ffe082;
+    --bg: #ffffff; --bg2: #f7f7f5; --bg3: #efefec; --border: #e3e3df;
+    --text: #1a1a1a; --text2: #6b6b6b; --text3: #9b9b9b;
+    --navy: #1a3a5c; --teal: #0d6e8a; --mid: #5a7a95;
+    --red: #c0392b; --orange: #d35400; --yellow: #b7950b;
+    --green: #1a7a40; --purple: #6c3483;
+    --risk-critical: #fdf2f2; --risk-critical-b: #e8a5a5; --risk-critical-t: #922b21;
+    --risk-high: #fff8f0; --risk-high-b: #f5c6a0; --risk-high-t: #935116;
+    --risk-medium: #fffbf0; --risk-medium-b: #ffe082; --risk-medium-t: #7d6608;
+    --risk-low: #f0faf0; --risk-low-b: #a5d6a7; --risk-low-t: #1a7a40;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.7; max-width: 960px; margin: 0 auto; padding: 48px 32px 80px; }
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    font-size: 15px;
-    line-height: 1.7;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 48px 32px 80px;
-  }
-
-  /* ── COVER ── */
-  .cover {
-    border-bottom: 2px solid var(--border);
-    padding-bottom: 40px;
-    margin-bottom: 48px;
-  }
-  .cover-label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--teal);
-    margin-bottom: 12px;
-  }
-  .cover h1 {
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--navy);
-    line-height: 1.25;
-    margin-bottom: 14px;
-  }
-  .cover-sub {
-    font-size: 15px;
-    color: var(--text2);
-    margin-bottom: 24px;
-    max-width: 680px;
-  }
-  .cover-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 24px;
-  }
-  .meta-chip {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 5px 12px;
-    font-size: 12px;
-    color: var(--text2);
-    font-weight: 500;
-  }
+  /* COVER */
+  .cover { border-bottom: 2px solid var(--border); padding-bottom: 40px; margin-bottom: 48px; }
+  .cover-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--teal); margin-bottom: 12px; }
+  .cover h1 { font-size: 30px; font-weight: 700; color: var(--navy); line-height: 1.25; margin-bottom: 14px; }
+  .cover-sub { font-size: 14.5px; color: var(--text2); margin-bottom: 24px; max-width: 700px; }
+  .cover-meta { display: flex; flex-wrap: wrap; gap: 10px; }
+  .meta-chip { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 12px; color: var(--text2); font-weight: 500; }
   .meta-chip span { color: var(--navy); font-weight: 600; }
 
-  /* ── EXEC SUMMARY ── */
-  .exec-summary {
-    background: var(--bg2);
-    border-left: 4px solid var(--teal);
-    border-radius: 0 8px 8px 0;
-    padding: 24px 28px;
-    margin-bottom: 48px;
-  }
-  .exec-summary h2 {
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--teal);
-    margin-bottom: 12px;
-  }
-  .exec-summary p { color: var(--text); font-size: 14px; margin-bottom: 8px; }
+  /* SECTIONS */
+  .section-title { font-size: 21px; font-weight: 700; color: var(--navy); border-bottom: 2px solid var(--border); padding-bottom: 10px; margin: 48px 0 24px; }
+  .section-intro { font-size: 14px; color: var(--text2); margin-bottom: 28px; max-width: 720px; line-height: 1.75; }
 
-  /* ── SCORECARD TABLE ── */
-  .scorecard {
-    margin-bottom: 48px;
-    overflow-x: auto;
-  }
-  .scorecard h2 {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--navy);
-    margin-bottom: 16px;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-  thead th {
-    background: var(--navy);
-    color: white;
-    padding: 10px 14px;
-    text-align: left;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-  }
+  /* EXEC SUMMARY */
+  .exec-box { background: var(--bg2); border-left: 4px solid var(--teal); padding: 24px 28px; margin-bottom: 40px; }
+  .exec-box h2 { font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--teal); margin-bottom: 12px; }
+  .exec-box p { font-size: 14px; margin-bottom: 8px; color: var(--text); }
+
+  /* OVERVIEW CARDS */
+  .overview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 40px; }
+  .ov-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .ov-card .big { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+  .ov-card .lbl { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+  .critical-num { color: var(--risk-critical-t); }
+  .high-num { color: var(--risk-high-t); }
+  .medium-num { color: var(--risk-medium-t); }
+  .low-num { color: var(--risk-low-t); }
+
+  /* SYSTEM OVERVIEW */
+  .sys-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 40px; }
+  .sys-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
+  .sys-card h4 { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+  .sys-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; gap: 12px; }
+  .sys-row:last-child { border-bottom: none; }
+  .sys-key { color: var(--text2); white-space: nowrap; flex-shrink: 0; }
+  .sys-val { color: var(--text); font-weight: 500; text-align: right; }
+
+  /* RISK REGISTER */
+  .risk-card { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+  .risk-header { padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
+  .risk-id { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 4px; white-space: nowrap; letter-spacing: 0.5px; }
+  .risk-header h3 { font-size: 14px; font-weight: 600; flex: 1; }
+  .risk-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 4px; white-space: nowrap; }
+
+  .critical .risk-header { background: var(--risk-critical-bg, #fdf2f2); border-bottom: 1px solid var(--risk-critical-b); }
+  .critical .risk-id { background: var(--risk-critical); border: 1px solid var(--risk-critical-b); color: var(--risk-critical-t); }
+  .critical .risk-header h3 { color: var(--risk-critical-t); }
+  .critical .risk-badge { background: var(--risk-critical); color: var(--risk-critical-t); border: 1px solid var(--risk-critical-b); }
+
+  .high .risk-header { background: #fff8f0; border-bottom: 1px solid var(--risk-high-b); }
+  .high .risk-id { background: var(--risk-high); border: 1px solid var(--risk-high-b); color: var(--risk-high-t); }
+  .high .risk-header h3 { color: var(--risk-high-t); }
+  .high .risk-badge { background: var(--risk-high); color: var(--risk-high-t); border: 1px solid var(--risk-high-b); }
+
+  .medium .risk-header { background: #fffbf0; border-bottom: 1px solid var(--risk-medium-b); }
+  .medium .risk-id { background: var(--risk-medium); border: 1px solid var(--risk-medium-b); color: var(--risk-medium-t); }
+  .medium .risk-header h3 { color: var(--risk-medium-t); }
+  .medium .risk-badge { background: var(--risk-medium); color: var(--risk-medium-t); border: 1px solid var(--risk-medium-b); }
+
+  .low .risk-header { background: #f0faf0; border-bottom: 1px solid var(--risk-low-b); }
+  .low .risk-id { background: var(--risk-low); border: 1px solid var(--risk-low-b); color: var(--risk-low-t); }
+  .low .risk-header h3 { color: var(--risk-low-t); }
+  .low .risk-badge { background: var(--risk-low); color: var(--risk-low-t); border: 1px solid var(--risk-low-b); }
+
+  .risk-body { padding: 0; }
+  .risk-grid { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border); }
+  .risk-cell { padding: 14px 18px; border-right: 1px solid var(--border); font-size: 13px; }
+  .risk-cell:last-child { border-right: none; }
+  .risk-cell-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text3); margin-bottom: 5px; }
+  .risk-cell p { color: var(--text); line-height: 1.6; }
+  .risk-controls { padding: 14px 18px; background: var(--bg2); border-bottom: 1px solid var(--border); }
+  .risk-controls-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text3); margin-bottom: 8px; }
+  .control-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ctag { font-size: 11.5px; padding: 3px 10px; border-radius: 4px; background: var(--bg); border: 1px solid var(--border); color: var(--text2); }
+  .risk-regs { padding: 12px 18px; background: var(--bg); font-size: 12px; color: var(--text2); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .reg-tag { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: #eaf3f7; color: var(--teal); border: 1px solid #b3d4e0; }
+
+  /* SCORING MATRIX */
+  .matrix-wrap { overflow-x: auto; margin-bottom: 40px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: var(--navy); color: white; padding: 10px 14px; text-align: left; font-weight: 600; }
   tbody tr:nth-child(even) { background: var(--bg2); }
-  tbody td {
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--border);
-    vertical-align: middle;
-  }
-  .score-gpt { color: var(--orange); font-weight: 700; }
-  .score-claude { color: var(--green); font-weight: 700; }
-  .winner-badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 7px;
-    border-radius: 4px;
-    letter-spacing: 0.5px;
-  }
-  .win-claude { background: #d4edda; color: var(--green); }
-  .win-gpt    { background: #fff3cd; color: var(--orange); }
-  .win-tie    { background: #e2e3e5; color: #555; }
+  tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .score-pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 4px; }
+  .s-critical { background: var(--risk-critical); color: var(--risk-critical-t); border: 1px solid var(--risk-critical-b); }
+  .s-high { background: var(--risk-high); color: var(--risk-high-t); border: 1px solid var(--risk-high-b); }
+  .s-medium { background: var(--risk-medium); color: var(--risk-medium-t); border: 1px solid var(--risk-medium-b); }
+  .s-low { background: var(--risk-low); color: var(--risk-low-t); border: 1px solid var(--risk-low-b); }
 
-  /* ── SECTION HEADERS ── */
-  .section-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--navy);
-    border-bottom: 2px solid var(--border);
-    padding-bottom: 10px;
-    margin: 48px 0 28px;
-  }
-  .section-intro {
-    font-size: 14px;
-    color: var(--text2);
-    margin-bottom: 28px;
-    max-width: 700px;
-  }
+  /* GOVERNANCE */
+  .gov-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 40px; }
+  .gov-card { border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
+  .gov-card h4 { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+  .gov-card .role { font-size: 11px; color: var(--teal); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .gov-card ul { list-style: none; }
+  .gov-card li { font-size: 12.5px; color: var(--text2); padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
+  .gov-card li:last-child { border-bottom: none; }
+  .gov-card li::before { content: "▸"; color: var(--teal); flex-shrink: 0; }
 
-  /* ── PROMPT CARD ── */
-  .prompt-card {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    margin-bottom: 40px;
-    overflow: hidden;
-  }
-  .prompt-header {
-    background: var(--navy);
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .prompt-num {
-    background: var(--teal);
-    color: white;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 9px;
-    border-radius: 4px;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-  }
-  .prompt-header h3 {
-    color: white;
-    font-size: 14px;
-    font-weight: 600;
-    flex: 1;
-  }
-  .prompt-domain {
-    font-size: 11px;
-    color: rgba(255,255,255,0.6);
-    white-space: nowrap;
-  }
-  .prompt-q {
-    background: var(--bg2);
-    padding: 14px 20px;
-    font-size: 13px;
-    color: var(--text2);
-    border-bottom: 1px solid var(--border);
-  }
-  .prompt-q strong { color: var(--text); }
-  .prompt-body { padding: 0; }
+  /* REGULATORY TABLE */
+  .reg-table { margin-bottom: 40px; }
+  .reg-row { display: grid; grid-template-columns: 160px 1fr 1fr; gap: 0; border: 1px solid var(--border); margin-bottom: -1px; }
+  .reg-row.header { background: var(--navy); color: white; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .reg-row:not(.header):nth-child(even) { background: var(--bg2); }
+  .reg-cell { padding: 12px 16px; border-right: 1px solid var(--border); font-size: 13px; }
+  .reg-cell:last-child { border-right: none; }
+  .reg-row.header .reg-cell { color: white; }
+  .status-yes { color: var(--green); font-weight: 600; }
+  .status-partial { color: var(--yellow); font-weight: 600; }
+  .status-no { color: var(--red); font-weight: 600; }
 
-  /* ── RESPONSE PANELS ── */
-  .response-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-  }
-  .response-panel {
-    padding: 18px 20px;
-    border-right: 1px solid var(--border);
-    font-size: 13px;
-    line-height: 1.65;
-  }
-  .response-panel:last-child { border-right: none; }
-  .response-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .label-gpt { color: var(--orange); }
-  .label-claude { color: var(--teal); }
-  .model-score-inline {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 2px 7px;
-    border-radius: 4px;
-    margin-left: auto;
-  }
-  .gpt-score-inline { background: #fff3cd; color: var(--orange); }
-  .claude-score-inline { background: #d4edda; color: var(--green); }
-
-  /* ── ANNOTATIONS ── */
-  .halluc {
-    background: var(--halluc-bg);
-    border-bottom: 2px solid var(--red);
-    cursor: default;
-    position: relative;
-  }
-  .warn-text {
-    background: var(--warn-bg);
-    border-bottom: 2px solid #f0c040;
-    cursor: default;
-  }
-  .correct-text {
-    background: var(--correct-bg);
-    border-bottom: 2px solid var(--green);
-  }
-
-  /* ── ERROR TAGS ── */
-  .error-tags {
-    padding: 12px 20px;
-    background: var(--bg2);
-    border-top: 1px solid var(--border);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    align-items: center;
-  }
-  .error-tags-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text3);
-    margin-right: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .etag {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 9px;
-    border-radius: 4px;
-    border: 1px solid;
-  }
-  .etag-H { background: #fdf2f2; border-color: #e8a5a5; color: var(--red); }
-  .etag-F { background: #fff8f0; border-color: #f5c6a0; color: var(--orange); }
-  .etag-O { background: #fffbf0; border-color: var(--warn-border); color: var(--yellow); }
-  .etag-C { background: var(--correct-bg); border-color: var(--correct-border); color: var(--green); }
-  .etag-M { background: #f3e5f5; border-color: #ce93d8; color: var(--purple); }
-
-  /* ── ANALYSIS BOX ── */
-  .analysis-box {
-    padding: 14px 20px;
-    background: #f0f4f8;
-    border-top: 1px solid var(--border);
-    font-size: 12.5px;
-    color: var(--text2);
-    border-radius: 0 0 10px 10px;
-  }
-  .analysis-box strong { color: var(--navy); }
-
-  /* ── ERROR TAXONOMY ── */
-  .taxonomy-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-    margin-bottom: 40px;
-  }
-  .tax-card {
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px 18px;
-  }
-  .tax-card h4 {
-    font-size: 13px;
-    font-weight: 700;
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .tax-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .dot-H { background: var(--red); }
-  .dot-F { background: var(--orange); }
-  .dot-O { background: var(--yellow); }
-  .dot-M { background: var(--purple); }
-  .tax-card p { font-size: 12.5px; color: var(--text2); }
-
-  /* ── FINAL SCORECARD ── */
-  .final-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin-bottom: 32px;
-  }
-  .final-card {
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 18px 16px;
-    text-align: center;
-  }
-  .final-card h4 { font-size: 11px; color: var(--text2); font-weight: 500; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .final-card .big-num { font-size: 28px; font-weight: 700; }
-  .final-card .sub-label { font-size: 11px; color: var(--text3); margin-top: 4px; }
-  .gpt-num { color: var(--orange); }
-  .claude-num { color: var(--teal); }
-
-  /* ── RECOMMENDATIONS ── */
+  /* RECOMMENDATIONS */
   .rec-list { list-style: none; margin-bottom: 40px; }
-  .rec-list li {
-    display: flex;
-    gap: 12px;
-    padding: 14px 18px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    margin-bottom: 10px;
-    font-size: 13.5px;
-    align-items: flex-start;
-  }
-  .rec-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
-  .rec-list li strong { display: block; color: var(--navy); margin-bottom: 3px; font-size: 13px; }
+  .rec-item { display: flex; gap: 14px; padding: 16px 18px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; align-items: flex-start; }
+  .rec-num { width: 26px; height: 26px; border-radius: 50%; background: var(--navy); color: white; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .rec-item strong { display: block; color: var(--navy); font-size: 13px; margin-bottom: 3px; }
+  .rec-item p { font-size: 13px; color: var(--text2); }
+  .rec-priority { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; margin-left: auto; flex-shrink: 0; }
 
-  /* ── LEGEND ── */
-  .legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 28px;
-    padding: 14px 18px;
-    background: var(--bg2);
-    border-radius: 8px;
-    font-size: 12px;
-  }
-  .legend-item { display: flex; align-items: center; gap: 5px; color: var(--text2); }
-
-  /* ── ABOUT ── */
-  .about-box {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 24px 28px;
-    margin-top: 48px;
-    background: var(--bg2);
-  }
+  /* ABOUT */
+  .about-box { border: 1px solid var(--border); border-radius: 10px; padding: 24px 28px; margin-top: 48px; background: var(--bg2); }
   .about-box h3 { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
   .about-box p { font-size: 13.5px; color: var(--text2); margin-bottom: 6px; }
 
-  /* ── FOOTER ── */
-  footer {
-    margin-top: 60px;
-    border-top: 1px solid var(--border);
-    padding-top: 20px;
-    font-size: 12px;
-    color: var(--text3);
-    text-align: center;
-  }
+  footer { margin-top: 60px; border-top: 1px solid var(--border); padding-top: 20px; font-size: 12px; color: var(--text3); text-align: center; }
 
-  @media (max-width: 650px) {
+  @media (max-width: 680px) {
     body { padding: 24px 16px 60px; }
-    .response-grid { grid-template-columns: 1fr; }
-    .taxonomy-grid { grid-template-columns: 1fr; }
-    .final-grid { grid-template-columns: 1fr; }
+    .overview-grid, .sys-grid, .gov-grid { grid-template-columns: 1fr 1fr; }
+    .risk-grid { grid-template-columns: 1fr; }
+    .reg-row { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
 
-<!-- ══════════════════ COVER ══════════════════ -->
+<!-- COVER -->
 <div class="cover">
-  <div class="cover-label">Portfolio Project · AI Quality Assurance</div>
-  <h1>LLM Evaluation Case Study:<br>Financial Services & Risk Domain</h1>
+  <div class="cover-label">Portfolio Project · AI Governance & Risk</div>
+  <h1>AI Risk Assessment Framework:<br>Customer Claims Chatbot Deployment</h1>
   <p class="cover-sub">
-    A structured assessment of two large language models — ChatGPT (GPT-4o) and Claude (Sonnet) —
-    across six financial services prompts. Each response is evaluated for factual accuracy, regulatory
-    precision, and hallucination risk using a four-category error taxonomy.
+    A structured pre-deployment risk assessment of an AI-powered chatbot handling motor insurance
+    claims queries for UK retail customers. Evaluates risks across bias, explainability, data privacy,
+    FCA Consumer Duty, and operational resilience — with a scored risk register and governance recommendations.
   </p>
   <div class="cover-meta">
     <div class="meta-chip">Author: <span>Ankit Singh</span></div>
-    <div class="meta-chip">Domain: <span>Financial Services / Risk & Compliance</span></div>
-    <div class="meta-chip">Models: <span>GPT-4o vs Claude Sonnet</span></div>
-    <div class="meta-chip">Prompts evaluated: <span>6</span></div>
+    <div class="meta-chip">Use Case: <span>AI Claims Chatbot — UK Motor Insurance</span></div>
+    <div class="meta-chip">Regulatory Scope: <span>FCA Consumer Duty · UK GDPR · ICO · Equality Act 2010</span></div>
+    <div class="meta-chip">Risk Domains: <span>6 assessed</span></div>
+    <div class="meta-chip">Risks Identified: <span>12 (3 Critical · 4 High · 3 Medium · 2 Low)</span></div>
     <div class="meta-chip">Date: <span>April 2026</span></div>
-    <div class="meta-chip">Format: <span>Independent QA Assessment</span></div>
   </div>
 </div>
 
-<!-- ══════════════════ EXEC SUMMARY ══════════════════ -->
-<div class="exec-summary">
+<!-- EXEC SUMMARY -->
+<div class="exec-box">
   <h2>Executive Summary</h2>
-  <p>This case study evaluates the reliability of two leading LLMs when responding to prompts in the Financial Services and Risk domain — an area where factual precision, regulatory accuracy, and appropriate caveats are critical.</p>
-  <p>Across 6 prompts spanning FCA regulation, Basel III capital requirements, AML/KYC obligations, GDPR in finance, operational risk frameworks, and UK insurance compliance, <strong>Claude demonstrated notably higher factual accuracy</strong> and appropriate hedging, while GPT-4o produced more confident responses that in several cases contained verifiable hallucinations or outdated regulatory figures.</p>
-  <p>Key finding: <strong>GPT-4o hallucinated or made verifiable factual errors in 4 of 6 prompts.</strong> Claude produced errors in 1 of 6, primarily through omission rather than commission.</p>
+  <p>This framework assesses the risks of deploying an AI-powered chatbot to handle first-notice-of-loss (FNOL) and claims status queries for UK motor insurance customers. The chatbot would handle an estimated 60–70% of inbound claims interactions, reducing operational costs while maintaining FCA-compliant customer outcomes.</p>
+  <p>The assessment identifies <strong>12 risks across 6 domains</strong>. Three risks are rated Critical and require mandatory controls before deployment: AI bias in claims handling decisions, inadequate GDPR consent mechanisms, and failure to meet FCA Consumer Duty obligations on consumer understanding. Four High risks require mitigation plans with defined owners and timelines.</p>
+  <p><strong>Overall deployment readiness rating: CONDITIONAL</strong> — deployment is viable subject to implementation of the 9 priority controls outlined in this framework.</p>
 </div>
 
-<!-- ══════════════════ METHODOLOGY ══════════════════ -->
-<div class="section-title">Methodology</div>
-<p class="section-intro">
-  Six prompts were designed to test model knowledge in high-stakes compliance and risk sub-domains.
-  Responses were evaluated against authoritative sources including FCA Handbook, Basel Committee publications,
-  FATF guidance, and UK insurance regulatory frameworks. Each response is annotated using the taxonomy below.
-</p>
+<!-- OVERVIEW NUMBERS -->
+<div class="overview-grid">
+  <div class="ov-card"><div class="big critical-num">3</div><div class="lbl">Critical risks</div></div>
+  <div class="ov-card"><div class="big high-num">4</div><div class="lbl">High risks</div></div>
+  <div class="ov-card"><div class="big medium-num">3</div><div class="lbl">Medium risks</div></div>
+  <div class="ov-card"><div class="big low-num">2</div><div class="lbl">Low risks</div></div>
+</div>
 
-<div class="taxonomy-grid">
-  <div class="tax-card">
-    <h4><span class="tax-dot dot-H"></span> H — Hallucination</h4>
-    <p>A stated fact that is demonstrably false or fabricated — e.g. an incorrect regulatory threshold, a non-existent rule, or an invented figure.</p>
+<!-- SYSTEM OVERVIEW -->
+<div class="section-title">System Overview</div>
+<div class="sys-grid">
+  <div class="sys-card">
+    <h4>Deployment Profile</h4>
+    <div class="sys-row"><span class="sys-key">System type</span><span class="sys-val">Conversational AI / LLM-based chatbot</span></div>
+    <div class="sys-row"><span class="sys-key">Deployment channel</span><span class="sys-val">Web portal + mobile app</span></div>
+    <div class="sys-row"><span class="sys-key">User base</span><span class="sys-val">UK retail motor insurance customers</span></div>
+    <div class="sys-row"><span class="sys-key">Estimated volume</span><span class="sys-val">~15,000 interactions/month</span></div>
+    <div class="sys-row"><span class="sys-key">Use cases in scope</span><span class="sys-val">FNOL, claims status, document requests</span></div>
+    <div class="sys-row"><span class="sys-key">Human escalation</span><span class="sys-val">Available — not automatic</span></div>
   </div>
-  <div class="tax-card">
-    <h4><span class="tax-dot dot-F"></span> F — Factual Imprecision</h4>
-    <p>A statement that is directionally correct but materially inaccurate — e.g. a correct concept applied to the wrong regulation or an outdated figure presented as current.</p>
-  </div>
-  <div class="tax-card">
-    <h4><span class="tax-dot dot-O"></span> O — Overconfidence / Missing Caveat</h4>
-    <p>Regulatory or legal advice delivered without appropriate hedging, where the model should have flagged complexity, jurisdiction-specificity, or professional guidance requirements.</p>
-  </div>
-  <div class="tax-card">
-    <h4><span class="tax-dot dot-M"></span> M — Material Omission</h4>
-    <p>A response that omits a significant element of the topic — e.g. failing to mention a key regulatory obligation or a major risk category that is directly relevant to the prompt.</p>
+  <div class="sys-card">
+    <h4>Regulatory Context</h4>
+    <div class="sys-row"><span class="sys-key">Primary regulator</span><span class="sys-val">FCA (PS22/9 Consumer Duty)</span></div>
+    <div class="sys-row"><span class="sys-key">Data regulation</span><span class="sys-val">UK GDPR / Data Protection Act 2018</span></div>
+    <div class="sys-row"><span class="sys-key">Equality obligations</span><span class="sys-val">Equality Act 2010</span></div>
+    <div class="sys-row"><span class="sys-key">AI-specific guidance</span><span class="sys-val">ICO AI Auditing Framework (2023)</span></div>
+    <div class="sys-row"><span class="sys-key">Accountability</span><span class="sys-val">SM&CR Senior Manager accountability</span></div>
+    <div class="sys-row"><span class="sys-key">Assessment method</span><span class="sys-val">Pre-deployment risk register + controls testing</span></div>
   </div>
 </div>
 
-<div class="legend">
-  <strong style="font-size:12px;color:var(--text);margin-right:6px;">Annotation key:</strong>
-  <span class="legend-item"><span style="background:var(--halluc-bg);border-bottom:2px solid var(--red);padding:0 4px;font-size:11px;">text</span> Hallucination (H)</span>
-  <span class="legend-item"><span style="background:var(--warn-bg);border-bottom:2px solid #f0c040;padding:0 4px;font-size:11px;">text</span> Factual Imprecision / Overconfidence (F/O)</span>
-  <span class="legend-item"><span style="background:var(--correct-bg);border-bottom:2px solid var(--green);padding:0 4px;font-size:11px;">text</span> Accurate / Well-caveated (✓)</span>
-</div>
+<!-- RISK SCORING METHODOLOGY -->
+<div class="section-title">Risk Scoring Methodology</div>
+<p class="section-intro">Each risk is scored on two dimensions — Likelihood (1–5) and Impact (1–5) — producing a Risk Score (1–25). Scores are mapped to four severity tiers. Residual risk is assessed after proposed controls are applied.</p>
 
-<!-- ══════════════════ OVERALL SCORECARD ══════════════════ -->
-<div class="scorecard">
-  <h2>Overall Scorecard</h2>
+<div class="matrix-wrap">
   <table>
     <thead>
-      <tr>
-        <th>#</th>
-        <th>Prompt Topic</th>
-        <th>GPT-4o Score</th>
-        <th>Claude Score</th>
-        <th>Error Types (GPT)</th>
-        <th>Winner</th>
-      </tr>
+      <tr><th>Severity</th><th>Score range</th><th>Definition</th><th>Action required</th></tr>
     </thead>
     <tbody>
-      <tr>
-        <td>1</td>
-        <td>FCA Consumer Duty obligations</td>
-        <td class="score-gpt">5/10</td>
-        <td class="score-claude">9/10</td>
-        <td><span class="etag etag-H">H</span> <span class="etag etag-O">O</span></td>
-        <td><span class="winner-badge win-claude">Claude</span></td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>Basel III Tier 1 capital ratio</td>
-        <td class="score-gpt">4/10</td>
-        <td class="score-claude">8/10</td>
-        <td><span class="etag etag-H">H</span> <span class="etag etag-F">F</span></td>
-        <td><span class="winner-badge win-claude">Claude</span></td>
-      </tr>
-      <tr>
-        <td>3</td>
-        <td>AML/KYC obligations under UK law</td>
-        <td class="score-gpt">7/10</td>
-        <td class="score-claude">8/10</td>
-        <td><span class="etag etag-O">O</span></td>
-        <td><span class="winner-badge win-claude">Claude</span></td>
-      </tr>
-      <tr>
-        <td>4</td>
-        <td>GDPR data subject rights in finance</td>
-        <td class="score-gpt">6/10</td>
-        <td class="score-claude">9/10</td>
-        <td><span class="etag etag-H">H</span> <span class="etag etag-M">M</span></td>
-        <td><span class="winner-badge win-claude">Claude</span></td>
-      </tr>
-      <tr>
-        <td>5</td>
-        <td>Operational risk — Three Lines of Defence</td>
-        <td class="score-gpt">8/10</td>
-        <td class="score-claude">8/10</td>
-        <td><span class="etag etag-F">F</span></td>
-        <td><span class="winner-badge win-tie">Tie</span></td>
-      </tr>
-      <tr>
-        <td>6</td>
-        <td>UK insurance — Solvency II overview</td>
-        <td class="score-gpt">5/10</td>
-        <td class="score-claude">7/10</td>
-        <td><span class="etag etag-H">H</span> <span class="etag etag-F">F</span></td>
-        <td><span class="winner-badge win-claude">Claude</span></td>
-      </tr>
+      <tr><td><span class="score-pill s-critical">Critical</span></td><td>16–25</td><td>Regulatory breach, significant customer harm, or reputational damage likely</td><td>Mandatory — block deployment until resolved</td></tr>
+      <tr><td><span class="score-pill s-high">High</span></td><td>10–15</td><td>Material compliance gap or elevated risk of customer detriment</td><td>Mitigation plan required with owner and deadline</td></tr>
+      <tr><td><span class="score-pill s-medium">Medium</span></td><td>5–9</td><td>Moderate risk — manageable with standard controls</td><td>Control in place; monitor quarterly</td></tr>
+      <tr><td><span class="score-pill s-low">Low</span></td><td>1–4</td><td>Minor risk; unlikely to cause significant harm</td><td>Accept and log; review annually</td></tr>
     </tbody>
   </table>
 </div>
 
-<!-- ══════════════════ PROMPT EVALUATIONS ══════════════════ -->
-<div class="section-title">Detailed Prompt Evaluations</div>
+<!-- RISK REGISTER -->
+<div class="section-title">Risk Register</div>
+<p class="section-intro">12 risks identified across 6 domains. Each entry includes a description, likelihood and impact scores, regulatory mapping, proposed controls, and residual risk rating after controls are applied.</p>
 
-<!-- ── PROMPT 1 ── -->
-<div class="prompt-card">
-  <div class="prompt-header">
-    <span class="prompt-num">PROMPT 01</span>
-    <h3>FCA Consumer Duty — Core Obligations</h3>
-    <span class="prompt-domain">FCA Regulation</span>
+<!-- R01 CRITICAL -->
+<div class="risk-card critical">
+  <div class="risk-header">
+    <span class="risk-id">R-01</span>
+    <h3>AI bias in claims handling — discriminatory outcomes for protected characteristics</h3>
+    <span class="risk-badge">CRITICAL · Score 20/25</span>
   </div>
-  <div class="prompt-q">
-    <strong>Prompt:</strong> "What are the main obligations on firms under the FCA's Consumer Duty, and when did it come into force?"
-  </div>
-  <div class="prompt-body">
-    <div class="response-grid">
-      <div class="response-panel">
-        <div class="response-label label-gpt">
-          🤖 GPT-4o Response
-          <span class="model-score-inline gpt-score-inline">5 / 10</span>
-        </div>
-        <p>
-          The FCA Consumer Duty sets a higher standard of consumer protection. Firms must ensure good outcomes for retail customers across four areas: products and services, price and value, consumer understanding, and consumer support.
-          <span class="halluc"> The Duty came into force on 31 July 2022 for all firms, including those with closed book products.</span>
-          Firms are required to
-          <span class="halluc"> submit an annual attestation to the FCA confirming compliance, signed by the CEO personally.</span>
-          <span class="warn-text"> Firms must act to deliver good outcomes and can evidence this through their own internal monitoring.</span>
-          The cross-cutting rules require firms to act in good faith, avoid foreseeable harm, and enable customers to pursue their financial objectives.
-        </p>
+  <div class="risk-body">
+    <div class="risk-grid">
+      <div class="risk-cell">
+        <div class="risk-cell-label">Risk description</div>
+        <p>The AI model may produce systematically different claims outcomes for customers based on age, disability status, or postcode — proxies for protected characteristics under the Equality Act 2010. Training data from historical claims may encode past human biases.</p>
       </div>
-      <div class="response-panel">
-        <div class="response-label label-claude">
-          🟣 Claude Response
-          <span class="model-score-inline claude-score-inline">9 / 10</span>
-        </div>
-        <p>
-          <span class="correct-text">The FCA Consumer Duty (PS22/9) establishes a higher standard of consumer protection in retail financial markets. It came into force on 31 July 2023 for open products and services, and 31 July 2024 for closed book products.</span>
-          <br><br>
-          <span class="correct-text">The Duty is structured around three cross-cutting rules — act in good faith, avoid foreseeable harm, enable customers to pursue their financial objectives — and four consumer outcomes: products &amp; services, price &amp; value, consumer understanding, and consumer support.</span>
-          <br><br>
-          <span class="correct-text">Firms are required to embed the Duty in governance frameworks, with the Board approving an annual Consumer Duty assessment. Responsibility is allocated to a designated Consumer Duty Champion at Board level.</span> It's worth noting that specific implementation requirements may vary by firm type and product category.
-        </p>
+      <div class="risk-cell">
+        <div class="risk-cell-label">Likelihood · Impact · Score</div>
+        <p><strong>Likelihood: 4/5</strong> — LLMs trained on historical data routinely reproduce existing biases without explicit bias detection and remediation.</p>
+        <p style="margin-top:6px;"><strong>Impact: 5/5</strong> — FCA enforcement action, Equality Act liability, and significant reputational harm.</p>
       </div>
     </div>
-    <div class="error-tags">
-      <span class="error-tags-label">GPT-4o errors:</span>
-      <span class="etag etag-H">H — Wrong date (2022 stated; correct is 2023/2024 phased)</span>
-      <span class="etag etag-H">H — CEO personal attestation requirement fabricated</span>
-      <span class="etag etag-O">O — No caveat on firm-type variation</span>
+    <div class="risk-controls">
+      <div class="risk-controls-label">Required controls</div>
+      <div class="control-tags">
+        <span class="ctag">Pre-deployment bias audit across protected characteristics</span>
+        <span class="ctag">Ongoing fairness monitoring (monthly)</span>
+        <span class="ctag">Diverse test dataset including edge cases</span>
+        <span class="ctag">Human review for all declined/disputed claims</span>
+        <span class="ctag">Explainability logs retained for audit</span>
+      </div>
     </div>
-    <div class="analysis-box">
-      <strong>Analyst note:</strong> GPT-4o's date error is a high-risk hallucination in a compliance context — a practitioner relying on this would believe their firm was already 12 months late on obligations that hadn't yet applied. The fabricated "CEO attestation" requirement could misdirect governance teams. Claude correctly identified the phased implementation timeline and the Board-level Champion structure, which are both material to compliance planning.
+    <div class="risk-regs">
+      <strong style="font-size:11px;color:var(--text2);margin-right:4px;">Regulatory mapping:</strong>
+      <span class="reg-tag">FCA Consumer Duty — Consumer Outcomes</span>
+      <span class="reg-tag">Equality Act 2010 — s.19 Indirect Discrimination</span>
+      <span class="reg-tag">FCA PS22/9 — Products & Services Outcome</span>
+    </div>
+    <div class="risk-regs" style="background:var(--bg2);">
+      <strong style="font-size:11px;color:var(--text2);margin-right:4px;">Residual risk after controls:</strong>
+      <span class="score-pill s-medium">Medium — 8/25</span>
     </div>
   </div>
 </div>
 
-<!-- ── PROMPT 2 ── -->
-<div class="prompt-card">
-  <div class="prompt-header">
-    <span class="prompt-num">PROMPT 02</span>
-    <h3>Basel III — Minimum Tier 1 Capital Requirements</h3>
-    <span class="prompt-domain">Prudential Regulation</span>
+<!-- R02 CRITICAL -->
+<div class="risk-card critical">
+  <div class="risk-header">
+    <span class="risk-id">R-02</span>
+    <h3>GDPR — inadequate lawful basis and consent for AI processing of claims data</h3>
+    <span class="risk-badge">CRITICAL · Score 20/25</span>
   </div>
-  <div class="prompt-q">
-    <strong>Prompt:</strong> "What is the minimum Common Equity Tier 1 (CET1) capital ratio required under Basel III, and what is the capital conservation buffer?"
-  </div>
-  <div class="prompt-body">
-    <div class="response-grid">
-      <div class="response-panel">
-        <div class="response-label label-gpt">
-          🤖 GPT-4o Response
-          <span class="model-score-inline gpt-score-inline">4 / 10</span>
-        </div>
-        <p>
-          Under Basel III, banks are required to maintain a minimum Common Equity Tier 1 ratio of
-          <span class="halluc"> 6% of risk-weighted assets.</span>
-          The capital conservation buffer is set at
-          <span class="warn-text"> 2.5%, bringing the effective minimum to 8.5%.</span>
-          Additionally, systemically important financial institutions (SIFIs) may face a
-          <span class="halluc"> G-SIB surcharge of up to 3.5%, as mandated by the Basel IV framework introduced in 2021.</span>
-          Banks that breach the buffer face restrictions on dividends and bonuses.
-        </p>
+  <div class="risk-body">
+    <div class="risk-grid">
+      <div class="risk-cell">
+        <div class="risk-cell-label">Risk description</div>
+        <p>The chatbot will process sensitive personal data (health information in injury claims, financial data, vehicle history). UK GDPR Article 9 requires explicit consent or another lawful basis for special category data. Failure to establish a clear lawful basis before deployment constitutes a data breach.</p>
       </div>
-      <div class="response-panel">
-        <div class="response-label label-claude">
-          🟣 Claude Response
-          <span class="model-score-inline claude-score-inline">8 / 10</span>
-        </div>
-        <p>
-          <span class="correct-text">Under the Basel III framework, the minimum CET1 ratio is 4.5% of risk-weighted assets (RWAs). This is the hard floor — breaching it triggers supervisory intervention.</span>
-          <br><br>
-          <span class="correct-text">On top of the minimum, banks must hold a Capital Conservation Buffer (CCoB) of 2.5% of RWAs, bringing the effective target to 7% CET1. Distributing capital (dividends, buybacks, bonuses) is restricted when a bank's CET1 falls into the buffer zone.</span>
-          <br><br>
-          <span class="correct-text">There is also a Countercyclical Capital Buffer (CCyB) of 0–2.5% which can be activated by national regulators in periods of excess credit growth, and G-SIB surcharges of 1–3.5% for globally systemically important banks.</span> Implementation timelines and national discretions mean exact applied ratios vary by jurisdiction.
-        </p>
+      <div class="risk-cell">
+        <div class="risk-cell-label">Likelihood · Impact · Score</div>
+        <p><strong>Likelihood: 4/5</strong> — Many AI deployments proceed without adequate privacy impact assessments.</p>
+        <p style="margin-top:6px;"><strong>Impact: 5/5</strong> — ICO enforcement, fines up to £17.5m or 4% global turnover, plus civil liability.</p>
       </div>
     </div>
-    <div class="error-tags">
-      <span class="error-tags-label">GPT-4o errors:</span>
-      <span class="etag etag-H">H — CET1 minimum stated as 6% (correct: 4.5%)</span>
-      <span class="etag etag-H">H — "Basel IV" framing for G-SIB surcharge is misleading/incorrect</span>
-      <span class="etag etag-F">F — Conservation buffer math inconsistent with stated CET1 minimum</span>
+    <div class="risk-controls">
+      <div class="risk-controls-label">Required controls</div>
+      <div class="control-tags">
+        <span class="ctag">Data Protection Impact Assessment (DPIA) mandatory pre-deployment</span>
+        <span class="ctag">Explicit Article 9 lawful basis documented</span>
+        <span class="ctag">Privacy notice updated to cover AI processing</span>
+        <span class="ctag">Data minimisation — chatbot collects only necessary data</span>
+        <span class="ctag">Retention schedule defined for AI-generated interaction logs</span>
+      </div>
     </div>
-    <div class="analysis-box">
-      <strong>Analyst note:</strong> Stating the CET1 minimum as 6% rather than 4.5% is a significant factual error — it conflates CET1 with Tier 1 total requirements. For a risk analyst preparing regulatory capital reports or stress tests, this error would propagate materially. Claude's response correctly separated the minimum floor, the conservation buffer, the countercyclical buffer, and G-SIB surcharges — the precise distinctions that matter in practice.
+    <div class="risk-regs">
+      <strong style="font-size:11px;color:var(--text2);margin-right:4px;">Regulatory mapping:</strong>
+      <span class="reg-tag">UK GDPR Art. 6 — Lawful basis</span>
+      <span class="reg-tag">UK GDPR Art. 9 — Special category data</span>
+      <span class="reg-tag">UK GDPR Art. 35 — DPIA requirement</span>
+      <span class="reg-tag">ICO AI Auditing Framework</span>
+    </div>
+    <div class="risk-regs" style="background:var(--bg2);">
+      <strong style="font-size:11px;color:var(--text2);margin-right:4px;">Residual risk after controls:</strong>
+      <span class="score-pill s-medium">Medium — 8/25</span>
     </div>
   </div>
 </div>
 
-<!-- ── PROMPT 3 ── -->
-<div class="prompt-card">
-  <div class="prompt-header">
-    <span class="prompt-num">PROMPT 03</span>
-    <h3>AML/KYC — UK Regulatory Obligations</h3>
-    <span class="prompt-domain">Financial Crime Compliance</span>
+<!-- R03 CRITICAL -->
+<div class="risk-card critical">
+  <div class="risk-header">
+    <span class="risk-id">R-03</span>
+    <h3>FCA Consumer Duty — failure to ensure customer understanding of AI-generated guidance</h3>
+    <span class="risk-badge">CRITICAL · Score 16/25</span>
   </div>
-  <div class="prompt-q">
-    <strong>Prompt:</strong> "What are the key AML/KYC obligations for UK financial services firms under the Money Laundering Regulations 2017?"
-  </div>
-  <div class="prompt-body">
-    <div class="response-grid">
-      <div class="response-panel">
-        <div class="response-label label-gpt">
-          🤖 GPT-4o Response
-          <span class="model-score-inline gpt-score-inline">7 / 10</span>
-        </div>
-        <p>
-          Under the Money Laundering, Terrorist Financing and Transfer of Funds (Information on the Payer) Regulations 2017 (MLR 2017), UK firms must:
-          <br><br>
-          Apply Customer Due Diligence (CDD) measures when establishing a business relationship, conducting occasional transactions above €15,000, or where there is suspicion of money laundering or terrorist financing.
-          <br><br>
-          Enhanced Due Diligence (EDD) must be applied to high-risk situations including Politically Exposed Persons (PEPs) and correspondent banking relationships.
-          <br><br>
-          <span class="warn-text"> Firms must appoint a Money Laundering Reporting Officer (MLRO), maintain records for five years, and train staff. Suspicious Activity Reports (SARs) must be submitted to the National Crime Agency (NCA).</span>
-          <span class="warn-text"> Firms are also required to conduct a firm-wide risk assessment, though the frequency of review is left to the firm's discretion.</span>
-        </p>
+  <div class="risk-body">
+    <div class="risk-grid">
+      <div class="risk-cell">
+        <div class="risk-cell-label">Risk description</div>
+        <p>Consumer Duty requires firms to ensure customers understand the information provided and can make informed decisions. If the chatbot provides unclear, incomplete, or misleading claims guidance, customers may act to their detriment — a direct breach of the Consumer Understanding outcome.</p>
       </div>
-      <div class="response-panel">
-        <div class="response-label label-claude">
-          🟣 Claude Response
-          <span class="model-score-inline claude-score-inline">8 / 10</span>
-        </div>
-        <p>
-          <span class="correct-text">MLR 2017 (as amended) imposes several core obligations on in-scope firms. These include conducting Customer Due Diligence (CDD) — verifying customer identity and beneficial ownership — at onboarding and at appropriate intervals thereafter.</span>
-          <br><br>
-          <span class="correct-text">Enhanced Due Diligence (EDD) is mandatory for higher-risk relationships, including PEPs, high-risk third countries, and complex or unusually large transactions. Simplified Due Diligence (SDD) may apply in lower-risk scenarios.</span>
-          <br><br>
-          <span class="correct-text">Firms must appoint a nominated officer (MLRO), conduct and document a firm-wide risk assessment, maintain records for at least five years, and submit SARs to the NCA via the SAR Online system where appropriate.</span>
-          <br><br>
-          Ongoing monitoring of business relationships is a continuous obligation — not a one-time check. Firms should seek legal advice on jurisdiction-specific obligations as MLR 2017 has been amended post-Brexit.
-        </p>
+      <div class="risk-cell">
+        <div class="risk-cell-label">Likelihood · Impact · Score</div>
+        <p><strong>Likelihood: 4/5</strong> — LLMs hallucinate or produce ambiguous outputs, especially in complex claims scenarios.</p>
+        <p style="margin-top:6px;"><strong>Impact: 4/5</strong> — FCA supervisory action, customer redress obligations, reputational harm.</p>
       </div>
     </div>
-    <div class="error-tags">
-      <span class="error-tags-label">GPT-4o notes:</span>
-      <span class="etag etag-O">O — "Frequency left to firm's discretion" understates ongoing monitoring obligation</span>
-      <span class="etag etag-O">O — No mention of Simplified Due Diligence (SDD) — incomplete picture</span>
+    <div class="risk-controls">
+      <div class="risk-controls-label">Required controls</div>
+      <div class="control-tags">
+        <span class="ctag">Plain English testing of all chatbot outputs</span>
+        <span class="ctag">Mandatory human escalation for complex or high-value claims</span>
+        <span class="ctag">Explicit disclosure: "You are talking to an AI"</span>
+        <span class="ctag">Output confidence thresholds — low-confidence responses trigger escalation</span>
+        <span class="ctag">Regular QA sampling of live chatbot interactions</span>
+      </div>
     </div>
-    <div class="analysis-box">
-      <strong>Analyst note:</strong> Both models performed reasonably well here. GPT-4o's suggestion that the frequency of risk assessment review is purely discretionary understates the ongoing monitoring obligation — regulators expect regular, risk-based review cycles. Claude's explicit mention of SDD alongside EDD and the post-Brexit amendment caveat demonstrated more complete regulatory awareness.
+    <div class="risk-regs">
+      <strong style="font-size:11px;color:var(--text2);margin-right:4px;">Regulatory mapping:</strong>
+      <span class="reg-tag">FCA Consumer Duty — Consumer Understanding Outcome</span>
+      <span class="reg-tag">FCA Consumer Duty — Consumer Support Outcome</span>
+      <span class="reg-tag">FCA PRIN 12 — Act to deliver good outcomes</span>
+    </div>
+    <div class="risk-regs" style="background:var(--bg2);">
+      <strong style="font-size:11px;color:var(--text2);margin-right:4px;">Residual risk after controls:</strong>
+      <span class="score-pill s-medium">Medium — 9/25</span>
     </div>
   </div>
 </div>
 
-<!-- ── PROMPT 4 ── -->
-<div class="prompt-card">
-  <div class="prompt-header">
-    <span class="prompt-num">PROMPT 04</span>
-    <h3>GDPR — Data Subject Rights in Financial Services</h3>
-    <span class="prompt-domain">Data Privacy / GDPR</span>
+<!-- R04 HIGH -->
+<div class="risk-card high">
+  <div class="risk-header">
+    <span class="risk-id">R-04</span>
+    <h3>Explainability failure — AI cannot justify claims decisions to customers or regulators</h3>
+    <span class="risk-badge">HIGH · Score 15/25</span>
   </div>
-  <div class="prompt-q">
-    <strong>Prompt:</strong> "Under UK GDPR, can a financial services firm refuse a customer's Subject Access Request (SAR)? If so, on what grounds?"
-  </div>
-  <div class="prompt-body">
-    <div class="response-grid">
-      <div class="response-panel">
-        <div class="response-label label-gpt">
-          🤖 GPT-4o Response
-          <span class="model-score-inline gpt-score-inline">6 / 10</span>
-        </div>
-        <p>
-          Yes, a financial services firm can refuse or limit a Subject Access Request under UK GDPR in certain circumstances:
-          <br><br>
-          <span class="halluc"> If the request is the second SAR submitted within a 12-month period, the firm can automatically refuse it as "repeat and manifestly unfounded."</span>
-          <br><br>
-          Firms can also refuse where complying would involve disclosing information about a third party whose rights override those of the requestor, or where the data relates to ongoing legal proceedings.
-          <br><br>
-          <span class="warn-text"> The firm must respond within 30 days in all cases, even when refusing, and there is no provision to extend this for complex requests.</span>
-        </p>
+  <div class="risk-body">
+    <div class="risk-grid">
+      <div class="risk-cell">
+        <div class="risk-cell-label">Risk description</div>
+        <p>Customers have a right under UK GDPR to request meaningful information about automated decisions that significantly affect them. If the chatbot cannot produce explainable, auditable reasoning for claims outcomes, the firm cannot fulfil this obligation or defend decisions to the FCA.</p>
       </div>
-      <div class="response-panel">
-        <div class="response-label label-claude">
-          🟣 Claude Response
-          <span class="model-score-inline claude-score-inline">9 / 10</span>
-        </div>
-        <p>
-          <span class="correct-text">Under UK GDPR (as retained in the Data Protection Act 2018), a firm may refuse or limit a SAR where the request is manifestly unfounded or manifestly excessive. The threshold is high — the firm bears the burden of demonstrating this.</span>
-          <br><br>
-          <span class="correct-text">A subsequent SAR from the same individual is not automatically refusable — each request must be assessed on its own merits. However, where a pattern of requests is clearly vexatious or disproportionate, refusal or a reasonable charge may apply.</span>
-          <br><br>
-          <span class="correct-text">Other grounds include exemptions for crime prevention, regulatory functions, legal professional privilege, and management forecasting. The firm must respond within one calendar month, with a possible two-month extension for complex or numerous requests, notifying the individual within the first month of any delay.</span> Firms should always log SAR decisions carefully given ICO audit risk.
-        </p>
+      <div class="risk-cell">
+        <div class="risk-cell-label">Likelihood · Impact · Score</div>
+        <p><strong>Likelihood: 3/5</strong> — Modern LLMs are not inherently explainable; explainability tools are available but require deliberate implementation.</p>
+        <p style="margin-top:6px;"><strong>Impact: 5/5</strong> — Regulatory enforcement, inability to defend complaints, ICO audit risk.</p>
       </div>
     </div>
-    <div class="error-tags">
-      <span class="error-tags-label">GPT-4o errors:</span>
-      <span class="etag etag-H">H — "Second SAR within 12 months = automatic refusal" is fabricated. No such rule exists.</span>
-      <span class="etag etag-F">F — 30-day deadline stated as absolute; extension provision omitted</span>
-      <span class="etag etag-M">M — Crime prevention and regulatory exemptions not mentioned</span>
+    <div class="risk-controls">
+      <div class="risk-controls-label">Required controls</div>
+      <div class="control-tags">
+        <span class="ctag">Explainability layer (e.g. LIME/SHAP or chain-of-thought logging)</span>
+        <span class="ctag">Decision audit trail retained for minimum 5 years</span>
+        <span class="ctag">Human review available on request for any AI-influenced outcome</span>
+        <span class="ctag">Model card documenting training data, limitations, and intended scope</span>
+      </div>
     </div>
-    <div class="analysis-box">
-      <strong>Analyst note:</strong> The hallucination about a second SAR being automatically refusable is particularly dangerous — a data protection officer relying on this advice could expose their firm to ICO enforcement action. UK GDPR requires each request to be assessed individually. Claude correctly identified the high evidential bar for manifestly excessive refusals, the two-month extension mechanism, and the relevant statutory exemptions.
+    <div class="risk-regs">
+      <strong style="font-size:11px;color:var(--text2);margin-right:4px;">Regulatory mapping:</strong>
+      <span class="reg-tag">UK GDPR Art. 22 — Automated decision-making</span>
+      <span class="reg-tag">ICO Explaining AI Decisions guidance</span>
+      <span class="reg-tag">FCA Consumer Duty — Consumer Support Outcome</span>
+    </div>
+    <div class="risk-regs" style="background:var(--bg2);">
+      <strong style="font-size:11px;color:var(--text2);margin-right:4px;">Residual risk after controls:</strong>
+      <span class="score-pill s-medium">Medium — 9/25</span>
     </div>
   </div>
 </div>
 
-<!-- ── PROMPT 5 ── -->
-<div class="prompt-card">
-  <div class="prompt-header">
-    <span class="prompt-num">PROMPT 05</span>
-    <h3>Operational Risk — Three Lines of Defence</h3>
-    <span class="prompt-domain">Risk Governance</span>
+<!-- R05 HIGH -->
+<div class="risk-card high">
+  <div class="risk-header">
+    <span class="risk-id">R-05</span>
+    <h3>Operational resilience — chatbot failure causes claims handling outage</h3>
+    <span class="risk-badge">HIGH · Score 12/25</span>
   </div>
-  <div class="prompt-q">
-    <strong>Prompt:</strong> "Explain the Three Lines of Defence model as used in financial services operational risk governance."
-  </div>
-  <div class="prompt-body">
-    <div class="response-grid">
-      <div class="response-panel">
-        <div class="response-label label-gpt">
-          🤖 GPT-4o Response
-          <span class="model-score-inline gpt-score-inline">8 / 10</span>
-        </div>
-        <p>
-          The Three Lines of Defence (3LoD) model is a widely used governance framework that separates risk ownership, risk oversight, and independent assurance:
-          <br><br>
-          <strong>First Line:</strong> Business operations — owns and manages risk day-to-day. Responsible for controls.
-          <br><br>
-          <strong>Second Line:</strong> Risk and Compliance functions — sets policy, provides oversight, monitors adherence.
-          <br><br>
-          <strong>Third Line:</strong> Internal Audit — provides independent assurance over the first and second lines.
-          <br><br>
-          <span class="warn-text"> External audit and regulators are sometimes referred to as a "fourth line" in extended versions of the model.</span> The model was developed by the Institute of Internal Auditors and has been updated to reflect a more principles-based approach.
-        </p>
+  <div class="risk-body">
+    <div class="risk-grid">
+      <div class="risk-cell">
+        <div class="risk-cell-label">Risk description</div>
+        <p>If the chatbot handles the majority of claims queries and experiences a model failure, API outage, or adversarial prompt attack, customer access to claims support is disrupted. This is particularly acute for vulnerable customers requiring urgent support following an accident.</p>
       </div>
-      <div class="response-panel">
-        <div class="response-label label-claude">
-          🟣 Claude Response
-          <span class="model-score-inline claude-score-inline">8 / 10</span>
-        </div>
-        <p>
-          <span class="correct-text">The Three Lines of Defence (3LoD) model, updated by the IIA in 2020 to the "Three Lines Model," provides a framework for allocating roles in risk management and governance.</span>
-          <br><br>
-          <span class="correct-text">The <strong>First Line</strong> comprises operational management and staff who own risk and operate controls as part of daily business activities. They are accountable for identifying, assessing, and mitigating risks within their functions.</span>
-          <br><br>
-          <span class="correct-text">The <strong>Second Line</strong> includes Risk Management and Compliance functions, which set risk appetite and policy, provide tools and expertise to the first line, and independently monitor whether controls are operating effectively.</span>
-          <br><br>
-          <span class="correct-text">The <strong>Third Line</strong> is Internal Audit, which provides independent and objective assurance to the Board and senior management on the effectiveness of governance, risk management, and internal controls.</span>
-          <br><br>
-          In practice, the model is applied differently across firms — some blend second and third line functions in smaller organisations.
-        </p>
+      <div class="risk-cell">
+        <div class="risk-cell-label">Likelihood · Impact · Score</div>
+        <p><strong>Likelihood: 3/5</strong> — AI systems experience outages; adversarial inputs are a known attack vector for LLMs.</p>
+        <p style="margin-top:6px;"><strong>Impact: 4/5</strong> — Customer harm, FCA operational resilience breach, reputational damage.</p>
       </div>
     </div>
-    <div class="error-tags">
-      <span class="error-tags-label">Notes:</span>
-      <span class="etag etag-F">F (GPT) — "Fourth line" framing is non-standard; may cause confusion</span>
-      <span class="etag etag-C">✓ Both models correctly described core structure</span>
+    <div class="risk-controls">
+      <div class="risk-controls-label">Required controls</div>
+      <div class="control-tags">
+        <span class="ctag">Fallback routing to human agents on failure</span>
+        <span class="ctag">Maximum tolerable disruption period defined (FCA OpRes)</span>
+        <span class="ctag">Adversarial prompt testing pre-deployment</span>
+        <span class="ctag">SLA monitoring with automated alerting</span>
+      </div>
     </div>
-    <div class="analysis-box">
-      <strong>Analyst note:</strong> This was the strongest prompt for both models — the 3LoD model is well-documented and both responses were broadly accurate. Claude added useful context about the 2020 IIA update (renaming it the "Three Lines Model") and acknowledged practical variation by firm size. GPT-4o's "fourth line" framing, while sometimes used informally, is not standard in regulatory guidance and could mislead.
+    <div class="risk-regs">
+      <strong style="font-size:11px;color:var(--text2);margin-right:4px;">Regulatory mapping:</strong>
+      <span class="reg-tag">FCA Operational Resilience PS21/3</span>
+      <span class="reg-tag">FCA Consumer Duty — Consumer Support Outcome</span>
+    </div>
+    <div class="risk-regs" style="background:var(--bg2);">
+      <strong style="font-size:11px;color:var(--text2);margin-right:4px;">Residual risk after controls:</strong>
+      <span class="score-pill s-low">Low — 4/25</span>
     </div>
   </div>
 </div>
 
-<!-- ── PROMPT 6 ── -->
-<div class="prompt-card">
-  <div class="prompt-header">
-    <span class="prompt-num">PROMPT 06</span>
-    <h3>UK Insurance — Solvency II Overview</h3>
-    <span class="prompt-domain">Insurance Regulation</span>
+<!-- R06 HIGH -->
+<div class="risk-card high">
+  <div class="risk-header">
+    <span class="risk-id">R-06</span>
+    <h3>Vulnerable customer identification — AI fails to detect distress or vulnerability signals</h3>
+    <span class="risk-badge">HIGH · Score 12/25</span>
   </div>
-  <div class="prompt-q">
-    <strong>Prompt:</strong> "What is Solvency II and how does it apply to UK insurers post-Brexit?"
-  </div>
-  <div class="prompt-body">
-    <div class="response-grid">
-      <div class="response-panel">
-        <div class="response-label label-gpt">
-          🤖 GPT-4o Response
-          <span class="model-score-inline gpt-score-inline">5 / 10</span>
-        </div>
-        <p>
-          Solvency II is an EU regulatory framework for insurance firms that came into effect in 2016. It requires insurers to hold capital based on their risk profile across three pillars: quantitative requirements, governance, and reporting/disclosure.
-          <br><br>
-          <span class="halluc"> Following Brexit, the UK government repealed Solvency II entirely and replaced it with a new regime called the Insurance Capital Standard (ICS) in January 2024.</span>
-          <br><br>
-          <span class="halluc"> UK insurers are now regulated exclusively under the PRA's ICS framework, which sets a flat capital surcharge of 8% on all insurance liabilities regardless of risk category.</span>
-        </p>
+  <div class="risk-body">
+    <div class="risk-grid">
+      <div class="risk-cell">
+        <div class="risk-cell-label">Risk description</div>
+        <p>FCA Consumer Duty and FCA guidance on vulnerable customers (FG21/1) require firms to identify and appropriately support customers in vulnerable circumstances. An AI chatbot may fail to detect signals of distress, mental health challenges, or bereavement — resulting in inadequate support and potential harm.</p>
       </div>
-      <div class="response-panel">
-        <div class="response-label label-claude">
-          🟣 Claude Response
-          <span class="model-score-inline claude-score-inline">7 / 10</span>
-        </div>
-        <p>
-          <span class="correct-text">Solvency II is a risk-based regulatory framework for EU insurance and reinsurance firms, operative since January 2016. It is structured around three pillars: Pillar 1 (quantitative capital requirements, including the Solvency Capital Requirement and Minimum Capital Requirement), Pillar 2 (governance and risk management), and Pillar 3 (supervisory reporting and public disclosure).</span>
-          <br><br>
-          <span class="correct-text">Post-Brexit, the UK retained Solvency II in onshored form under the PRA's rulebook, but the government has since undertaken a significant reform programme. The Solvency UK reforms — finalised through 2024 — include changes to the Risk Margin calculation, the Matching Adjustment, and Transitional Measures on Technical Provisions, aimed at freeing up capital for productive investment.</span>
-          <br><br>
-          The ICS is actually an IAIS international standard being developed separately; it is not a UK domestic replacement. Firms should monitor PRA consultation papers for ongoing implementation details.
-        </p>
+      <div class="risk-cell">
+        <div class="risk-cell-label">Likelihood · Impact · Score</div>
+        <p><strong>Likelihood: 4/5</strong> — Detecting nuanced vulnerability signals in text is a known limitation of LLMs without specific fine-tuning.</p>
+        <p style="margin-top:6px;"><strong>Impact: 3/5</strong> — Customer harm, FCA supervisory concern, complaints and redress costs.</p>
       </div>
     </div>
-    <div class="error-tags">
-      <span class="error-tags-label">GPT-4o errors:</span>
-      <span class="etag etag-H">H — "UK replaced Solvency II with ICS" is entirely false</span>
-      <span class="etag etag-H">H — "Flat 8% capital surcharge" is fabricated with no regulatory basis</span>
-      <span class="etag etag-F">F — ICS is an international IAIS standard, not a UK domestic regime</span>
+    <div class="risk-controls">
+      <div class="risk-controls-label">Required controls</div>
+      <div class="control-tags">
+        <span class="ctag">Vulnerability detection classifier layer (keyword + sentiment)</span>
+        <span class="ctag">Auto-escalation to human agent on vulnerability flag</span>
+        <span class="ctag">Staff training on handling AI-escalated vulnerable cases</span>
+        <span class="ctag">Quarterly review of escalation accuracy rates</span>
+      </div>
     </div>
-    <div class="analysis-box">
-      <strong>Analyst note:</strong> This prompt produced GPT-4o's most dangerous hallucination in this evaluation. UK insurers are not regulated under ICS — this is an active international standard under development by IAIS. The fabricated "flat 8% surcharge" has no basis in any regulatory framework. A compliance professional at a UK insurer relying on this response would have a fundamentally incorrect understanding of their prudential capital regime. Claude's response on the Solvency UK reform programme was accurate and practically useful.
+    <div class="risk-regs">
+      <strong style="font-size:11px;color:var(--text2);margin-right:4px;">Regulatory mapping:</strong>
+      <span class="reg-tag">FCA FG21/1 — Vulnerable Customers</span>
+      <span class="reg-tag">FCA Consumer Duty — Consumer Support Outcome</span>
+    </div>
+    <div class="risk-regs" style="background:var(--bg2);">
+      <strong style="font-size:11px;color:var(--text2);margin-right:4px;">Residual risk after controls:</strong>
+      <span class="score-pill s-medium">Medium — 6/25</span>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════ FINAL ANALYSIS ══════════════════ -->
-<div class="section-title">Final Analysis & Comparative Findings</div>
-
-<div class="final-grid">
-  <div class="final-card">
-    <h4>Hallucinations</h4>
-    <div class="big-num gpt-num">6</div>
-    <div class="sub-label">GPT-4o total</div>
-    <div class="big-num claude-num" style="font-size:20px;margin-top:8px;">0</div>
-    <div class="sub-label">Claude total</div>
+<!-- R07 HIGH -->
+<div class="risk-card high">
+  <div class="risk-header">
+    <span class="risk-id">R-07</span>
+    <h3>Third-party AI vendor risk — limited oversight of model updates and data practices</h3>
+    <span class="risk-badge">HIGH · Score 10/25</span>
   </div>
-  <div class="final-card">
-    <h4>Average Score</h4>
-    <div class="big-num gpt-num">5.8</div>
-    <div class="sub-label">GPT-4o / 10</div>
-    <div class="big-num claude-num" style="font-size:20px;margin-top:8px;">8.2</div>
-    <div class="sub-label">Claude / 10</div>
-  </div>
-  <div class="final-card">
-    <h4>Prompts Won</h4>
-    <div class="big-num gpt-num">0</div>
-    <div class="sub-label">GPT-4o (0 tied, 1 tied)</div>
-    <div class="big-num claude-num" style="font-size:20px;margin-top:8px;">5</div>
-    <div class="sub-label">Claude (1 tie)</div>
+  <div class="risk-body">
+    <div class="risk-grid">
+      <div class="risk-cell">
+        <div class="risk-cell-label">Risk description</div>
+        <p>If the chatbot is built on a third-party LLM (e.g. GPT-4, Claude, Gemini), the firm has limited visibility into model updates, training data changes, or data processing practices. A model update could change behaviour materially without notice, creating compliance exposure.</p>
+      </div>
+      <div class="risk-cell">
+        <div class="risk-cell-label">Likelihood · Impact · Score</div>
+        <p><strong>Likelihood: 2/5</strong> — Manageable with contractual controls, but common in early AI vendor contracts.</p>
+        <p style="margin-top:6px;"><strong>Impact: 5/5</strong> — Undetected compliance breach, data exfiltration risk, model drift.</p>
+      </div>
+    </div>
+    <div class="risk-controls">
+      <div class="risk-controls-label">Required controls</div>
+      <div class="control-tags">
+        <span class="ctag">AI vendor due diligence questionnaire</span>
+        <span class="ctag">Contractual right to audit model changes</span>
+        <span class="ctag">Data processing agreement covering AI training data</span>
+        <span class="ctag">Model version pinning with change notification clauses</span>
+      </div>
+    </div>
+    <div class="risk-regs">
+      <strong style="font-size:11px;color:var(--text2);margin-right:4px;">Regulatory mapping:</strong>
+      <span class="reg-tag">UK GDPR Art. 28 — Processor obligations</span>
+      <span class="reg-tag">FCA SYSC — Outsourcing and third-party risk</span>
+    </div>
+    <div class="risk-regs" style="background:var(--bg2);">
+      <strong style="font-size:11px;color:var(--text2);margin-right:4px;">Residual risk after controls:</strong>
+      <span class="score-pill s-low">Low — 4/25</span>
+    </div>
   </div>
 </div>
 
-<div class="section-title" style="font-size:18px;margin-top:32px;">Key Findings</div>
+<!-- R08 MEDIUM -->
+<div class="risk-card medium">
+  <div class="risk-header">
+    <span class="risk-id">R-08</span>
+    <h3>Model hallucination — chatbot provides factually incorrect claims information</h3>
+    <span class="risk-badge">MEDIUM · Score 9/25</span>
+  </div>
+  <div class="risk-body">
+    <div class="risk-grid">
+      <div class="risk-cell">
+        <div class="risk-cell-label">Risk description</div>
+        <p>LLMs can generate plausible but incorrect information about policy terms, excess amounts, or claims procedures. A customer acting on incorrect AI guidance may fail to submit a valid claim or incur unexpected costs.</p>
+      </div>
+      <div class="risk-cell">
+        <div class="risk-cell-label">Likelihood · Impact · Score</div>
+        <p><strong>Likelihood: 3/5</strong> — Hallucination is a known LLM failure mode; retrieval-augmented generation (RAG) reduces but does not eliminate it.</p>
+        <p style="margin-top:6px;"><strong>Impact: 3/5</strong> — Customer detriment, complaints, potential redress.</p>
+      </div>
+    </div>
+    <div class="risk-controls">
+      <div class="risk-controls-label">Required controls</div>
+      <div class="control-tags">
+        <span class="ctag">Retrieval-Augmented Generation (RAG) grounding on policy documents</span>
+        <span class="ctag">Confidence scoring — low-confidence outputs escalated</span>
+        <span class="ctag">Weekly QA sampling of live chatbot outputs</span>
+      </div>
+    </div>
+    <div class="risk-regs">
+      <strong style="font-size:11px;color:var(--text2);margin-right:4px;">Regulatory mapping:</strong>
+      <span class="reg-tag">FCA Consumer Duty — Consumer Understanding Outcome</span>
+    </div>
+    <div class="risk-regs" style="background:var(--bg2);">
+      <strong style="font-size:11px;color:var(--text2);margin-right:4px;">Residual risk after controls:</strong>
+      <span class="score-pill s-low">Low — 3/25</span>
+    </div>
+  </div>
+</div>
 
+<!-- GOVERNANCE FRAMEWORK -->
+<div class="section-title">Governance Framework — Accountability Structure</div>
+<p class="section-intro">Under SM&CR, a named Senior Manager must be accountable for AI-related consumer outcomes. The following governance structure is recommended for pre- and post-deployment oversight.</p>
+
+<div class="gov-grid">
+  <div class="gov-card">
+    <h4>First Line</h4>
+    <div class="role">Business / Product</div>
+    <ul>
+      <li>AI product owner accountable for day-to-day performance</li>
+      <li>Operates and monitors chatbot controls</li>
+      <li>Reviews QA sampling outputs weekly</li>
+      <li>Manages human escalation routing</li>
+      <li>Reports incidents to second line</li>
+    </ul>
+  </div>
+  <div class="gov-card">
+    <h4>Second Line</h4>
+    <div class="role">Risk & Compliance</div>
+    <ul>
+      <li>Owns this AI risk framework</li>
+      <li>Conducts monthly compliance monitoring reviews</li>
+      <li>Reviews DPIA and regulatory mapping annually</li>
+      <li>Escalates material risks to Board</li>
+      <li>Coordinates with FCA on AI-related queries</li>
+    </ul>
+  </div>
+  <div class="gov-card">
+    <h4>Third Line</h4>
+    <div class="role">Internal Audit</div>
+    <ul>
+      <li>Independent annual audit of AI governance controls</li>
+      <li>Reviews bias testing results and methodology</li>
+      <li>Assesses GDPR/Consumer Duty compliance</li>
+      <li>Reports directly to Audit Committee</li>
+      <li>Benchmarks against ICO AI Auditing Framework</li>
+    </ul>
+  </div>
+</div>
+
+<!-- REGULATORY COMPLIANCE MAPPING -->
+<div class="section-title">Regulatory Compliance Mapping</div>
+<div class="reg-table">
+  <div class="reg-row header">
+    <div class="reg-cell">Regulation</div>
+    <div class="reg-cell">Key obligation for AI chatbot</div>
+    <div class="reg-cell">Current status</div>
+  </div>
+  <div class="reg-row">
+    <div class="reg-cell"><strong>FCA Consumer Duty</strong></div>
+    <div class="reg-cell">Ensure good consumer outcomes across all 4 outcome areas; avoid foreseeable harm; enable customers to pursue financial objectives</div>
+    <div class="reg-cell"><span class="status-partial">Partial</span> — Consumer Understanding and Consumer Support outcomes require specific chatbot controls before compliance is achieved</div>
+  </div>
+  <div class="reg-row">
+    <div class="reg-cell"><strong>UK GDPR</strong></div>
+    <div class="reg-cell">Lawful basis for processing; DPIA for high-risk processing; Art. 22 rights re: automated decisions; data minimisation and retention</div>
+    <div class="reg-cell"><span class="status-no">Not yet compliant</span> — DPIA not yet conducted; lawful basis for special category data not documented</div>
+  </div>
+  <div class="reg-row">
+    <div class="reg-cell"><strong>Equality Act 2010</strong></div>
+    <div class="reg-cell">No indirect discrimination via AI outputs against protected characteristics (age, disability, race, sex, etc.)</div>
+    <div class="reg-cell"><span class="status-no">Not yet compliant</span> — Bias audit not yet conducted against protected characteristics</div>
+  </div>
+  <div class="reg-row">
+    <div class="reg-cell"><strong>FCA FG21/1 Vulnerable Customers</strong></div>
+    <div class="reg-cell">Identify and appropriately support customers in vulnerable circumstances; adapt communications accordingly</div>
+    <div class="reg-cell"><span class="status-partial">Partial</span> — Human escalation available but vulnerability detection layer not yet implemented</div>
+  </div>
+  <div class="reg-row">
+    <div class="reg-cell"><strong>FCA Operational Resilience PS21/3</strong></div>
+    <div class="reg-cell">Define important business services; set impact tolerances; test resilience; ensure continuity of service</div>
+    <div class="reg-cell"><span class="status-partial">Partial</span> — Fallback mechanisms needed; impact tolerances not yet defined for AI-handled claims channel</div>
+  </div>
+  <div class="reg-row">
+    <div class="reg-cell"><strong>ICO AI Auditing Framework</strong></div>
+    <div class="reg-cell">Explainability; data governance; accountability; human oversight of automated systems</div>
+    <div class="reg-cell"><span class="status-no">Not yet compliant</span> — Explainability layer and audit trail not yet implemented</div>
+  </div>
+</div>
+
+<!-- RECOMMENDATIONS -->
+<div class="section-title">Priority Recommendations</div>
 <ul class="rec-list">
-  <li>
-    <span class="rec-icon">🔴</span>
+  <li class="rec-item">
+    <div class="rec-num">1</div>
     <div>
-      <strong>GPT-4o demonstrates a high hallucination rate in regulated domains</strong>
-      GPT-4o produced 6 verifiable hallucinations across 6 prompts — including fabricated regulatory rules (SAR refusal policy), incorrect capital ratios, and a completely fictitious capital regime for UK insurers. These are not minor errors; in each case, a compliance professional acting on the information could face regulatory breach.
+      <strong>Conduct a mandatory DPIA before any deployment activity</strong>
+      <p>A Data Protection Impact Assessment is a legal requirement under UK GDPR Art. 35 for high-risk AI processing. This must be completed, reviewed by the DPO, and documented before any live customer data is processed by the chatbot.</p>
     </div>
+    <span class="rec-priority s-critical score-pill">Pre-deployment</span>
   </li>
-  <li>
-    <span class="rec-icon">🟡</span>
+  <li class="rec-item">
+    <div class="rec-num">2</div>
     <div>
-      <strong>GPT-4o tends toward overconfidence without appropriate caveats</strong>
-      Where Claude consistently flagged jurisdictional variation, amendment history, and the need for professional advice, GPT-4o presented regulatory information as settled and universal — a material risk in a domain characterised by ongoing reform (Consumer Duty, Solvency UK, MLR amendments).
+      <strong>Commission an independent AI bias audit across all protected characteristics</strong>
+      <p>Before deployment, the model must be tested for differential outcomes across age, disability, ethnicity, and other protected characteristics using a representative test dataset. Results must be documented and signed off by a named Senior Manager.</p>
     </div>
+    <span class="rec-priority s-critical score-pill">Pre-deployment</span>
   </li>
-  <li>
-    <span class="rec-icon">🟢</span>
+  <li class="rec-item">
+    <div class="rec-num">3</div>
     <div>
-      <strong>Claude demonstrated stronger factual accuracy and appropriate hedging</strong>
-      Claude produced zero hallucinations across all 6 prompts and consistently flagged complexity, amendment history, and the limits of its knowledge. Its only weakness was occasional omission of secondary detail — errors of incompleteness rather than commission.
+      <strong>Implement mandatory AI disclosure and human escalation pathways</strong>
+      <p>All customers must be clearly informed they are interacting with an AI system at the start of the conversation. A clearly accessible "speak to a human" option must be available at all times — not just on chatbot failure.</p>
     </div>
+    <span class="rec-priority s-critical score-pill">Pre-deployment</span>
   </li>
-  <li>
-    <span class="rec-icon">⚠️</span>
+  <li class="rec-item">
+    <div class="rec-num">4</div>
     <div>
-      <strong>Neither model should be used as a sole source for regulatory advice</strong>
-      Even Claude's higher-quality responses require verification against primary sources (FCA Handbook, PRA Rulebook, HMRC guidance). LLMs can serve as a useful first-pass research tool but are not a substitute for qualified legal or compliance counsel in regulated industries.
+      <strong>Build a vulnerability detection layer with auto-escalation</strong>
+      <p>Implement a secondary classifier that monitors conversation inputs for vulnerability signals (distress language, repeated queries, references to bereavement or health issues) and automatically routes affected customers to a human agent.</p>
     </div>
+    <span class="rec-priority s-high score-pill">Month 1</span>
+  </li>
+  <li class="rec-item">
+    <div class="rec-num">5</div>
+    <div>
+      <strong>Establish a QA monitoring programme for live chatbot outputs</strong>
+      <p>A minimum of 100 chatbot interactions per week should be sampled by the compliance function and reviewed against Consumer Duty standards. Findings should be reported to the AI governance committee monthly.</p>
+    </div>
+    <span class="rec-priority s-high score-pill">Month 1</span>
+  </li>
+  <li class="rec-item">
+    <div class="rec-num">6</div>
+    <div>
+      <strong>Assign a named SM&CR Senior Manager as AI Accountability Owner</strong>
+      <p>Under SM&CR, a specific Senior Manager must be named as accountable for AI-related consumer outcomes. This accountability should be recorded in the Statements of Responsibilities and governance map.</p>
+    </div>
+    <span class="rec-priority s-high score-pill">Pre-deployment</span>
   </li>
 </ul>
 
-<div class="section-title" style="font-size:18px;">Recommendations for Deploying LLMs in Compliance Workflows</div>
-<ul class="rec-list">
-  <li><span class="rec-icon">1️⃣</span><div><strong>Always verify against primary regulatory sources</strong>Any LLM output touching regulatory thresholds, dates, or firm obligations should be cross-checked against the FCA Handbook, PRA Rulebook, or equivalent authoritative source before use.</div></li>
-  <li><span class="rec-icon">2️⃣</span><div><strong>Treat confident outputs with greater scepticism</strong>Hallucinations often present without hedging language. Counter-intuitively, a response that includes appropriate uncertainty ("this may vary by jurisdiction") is often more reliable than one that states regulatory facts categorically.</div></li>
-  <li><span class="rec-icon">3️⃣</span><div><strong>Use LLMs for structure and drafting, not for regulatory fact-finding</strong>LLMs perform well on tasks like structuring governance reports, drafting policy documents, or summarising known frameworks. They are higher-risk when used to look up specific thresholds, dates, or legal requirements.</div></li>
-  <li><span class="rec-icon">4️⃣</span><div><strong>Implement a human-in-the-loop review step for any AI-assisted compliance output</strong>Any LLM-generated content used in a regulatory context should be reviewed by a qualified professional before distribution to stakeholders or submission to regulators.</div></li>
-</ul>
-
-<!-- ══════════════════ ABOUT ══════════════════ -->
+<!-- ABOUT -->
 <div class="about-box">
   <h3>About This Project</h3>
-  <p>This evaluation was conducted independently by <strong>Ankit Singh</strong>, a Financial Services Analyst with experience in FCA-regulated insurance and compliance roles in the UK (Acorn Insurance, Direct Line Group).</p>
-  <p>The project was designed to demonstrate applied skills in QA monitoring, structured error analysis, governance reporting, and risk categorisation — core competencies for roles in compliance, operational risk, and controls testing within UK-origin GCC environments and financial services firms.</p>
-  <p style="margin-top:10px;"><strong>Contact:</strong> mail.ankitsingh25@gmail.com &nbsp;|&nbsp; <strong>Available for:</strong> GRC Analyst, QA Monitoring, Compliance Operations, Risk & Controls roles</p>
+  <p>This AI Risk Assessment Framework was developed independently by <strong>Ankit Singh</strong> as a portfolio project demonstrating applied skills in AI governance, regulatory compliance, and risk management within UK financial services.</p>
+  <p>The framework draws on direct professional experience in FCA-regulated insurance firms (Acorn Insurance, Direct Line Group) and applies established risk management methodologies to an AI deployment scenario — bridging traditional compliance expertise with emerging AI governance requirements.</p>
+  <p>The use case (AI claims chatbot in UK motor insurance) reflects a real and active deployment trend across UK insurers, with companies including Direct Line Group, Aviva, and Admiral actively investing in AI-assisted claims handling.</p>
+  <p style="margin-top:10px;"><strong>Contact:</strong> mail.ankitsingh01@gmail.com &nbsp;|&nbsp; <strong>Targeting:</strong> AI Governance, Risk & Compliance, GRC Analyst, AI Operations roles in UK-origin firms</p>
 </div>
 
 <footer>
-  AI Evaluation Case Study — Financial Services & Risk Domain &nbsp;|&nbsp; Ankit Singh &nbsp;|&nbsp; April 2026<br>
-  Responses are illustrative reconstructions designed to demonstrate evaluation methodology. All regulatory facts cited as "correct" have been verified against primary sources.
+  AI Risk Assessment Framework — Customer Claims Chatbot &nbsp;|&nbsp; Ankit Singh &nbsp;|&nbsp; April 2026<br>
+  This is an independent portfolio project. All regulatory references are based on publicly available FCA, ICO, and government guidance as of April 2026.
 </footer>
 
 </body>
